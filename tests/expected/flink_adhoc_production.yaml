@@ -1,0 +1,23 @@
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkDeployment
+metadata:
+  name: flink-adhoc-cluster
+spec:
+  image: flink:1.15
+  flinkVersion: v1_15
+  flinkConfiguration:
+    taskmanager.numberOfTaskSlots: 2
+  serviceAccount: flink
+  jobManager:
+    resource:
+      memory: 2048m
+      cpu: 2
+  taskManager:
+    resource:
+      memory: 2048m
+      cpu: 2
+  job:
+    # jarURI: local:///opt/flink/examples/streaming/StateMachineExample.jar
+    jarURI: local:///opt/flink/examples/streaming//StateMachineExample.jar
+    parallelism: 2
+    upgradeMode: stateless

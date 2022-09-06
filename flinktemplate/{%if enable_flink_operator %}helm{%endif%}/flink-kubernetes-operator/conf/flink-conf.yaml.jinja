@@ -1,0 +1,96 @@
+################################################################################
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
+# Flink job/cluster related configs
+
+blob.server.port: 6124
+queryable-state.proxy.ports: 6125
+parallelism.default: 2
+
+#==============================================================================
+# High Availability
+#==============================================================================
+taskmanager.rpc.port: 6122
+taskmanager.memory.process.size: 1728m
+taskmanager.numberOfTaskSlots: 2
+
+#==============================================================================
+# High Availability
+#==============================================================================
+jobmanager.rpc.port: 6123
+jobmanager.memory.process.size: 1600m
+
+#akka default overrides
+## Increased to prevent savepoints/with or without cancellation that work with larger state from timing out
+## the default was 60 s[econds]
+akka.client.timeout: 120 s
+
+#==============================================================================
+# High Availability
+#==============================================================================
+high-availability: org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory
+high-availability.storageDir: {{ file_system_type | default("file://") }}/{{ flink_data_loc | default("flink-data") }}/ha
+#==============================================================================
+# State
+#==============================================================================
+state.savepoints.dir: {{ file_system_type | default("file://") }}/{{ flink_data_loc | default("flink-data") }}/savepoints
+state.checkpoints.dir: {{ file_system_type | default("file://") }}/{{ flink_data_loc | default("flink-data") }}/checkpoints
+state.checkpoints.num-retained: 30
+#==============================================================================
+# JMX Reporter
+#==============================================================================
+metrics.internal.query-service.port: 6666
+metrics.reporters: jmx_reporter
+metrics.reporter.jmx_reporter.class: org.apache.flink.metrics.jmx.JMXReporter
+env.java.opts: -Dcom.sun.management.jmxremote.port=4999 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false
+#==============================================================================
+# Prometheus Reporter
+#==============================================================================
+metrics.reporters: prom
+metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
+metrics.reporter.prom.port: 9610
+#==============================================================================
+# JMX Reporter
+#==============================================================================
+jobstore.expiration-time: 86400
+web.timeout: 120000
+akka.jvm-exit-on-fatal-error: true
+akka.ask.timeout: 30s
+
+# Flink operator related configs
+# kubernetes.operator.reconcile.interval: 60 s
+# kubernetes.operator.reconcile.parallelism: 5
+# kubernetes.operator.flink.client.cancel.timeout: 1 min
+# kubernetes.operator.resource.cleanup.timeout: 60 s
+# kubernetes.operator.observer.rest-ready.delay: 10 s
+# kubernetes.operator.observer.progress-check.interval: 10 s
+# kubernetes.operator.observer.savepoint.trigger.grace-period: 10 s
+# kubernetes.operator.flink.client.timeout: 10 s
+# kubernetes.operator.deployment.rollback.enabled: false
+# kubernetes.operator.deployment.readiness.timeout: 1min
+# kubernetes.operator.user.artifacts.base.dir: /opt/flink/artifacts
+# kubernetes.operator.job.upgrade.ignore-pending-savepoint: false
+# kubernetes.operator.watched.namespaces: ns1,ns2
+# kubernetes.operator.label.selector: flink=enabled
+# kubernetes.operator.dynamic.namespaces.enabled: false
+# kubernetes.operator.retry.initial.interval: 5 s
+# kubernetes.operator.retry.interval.multiplier: 2
+# kubernetes.operator.retry.max.attempts: 10
+
+# kubernetes.operator.metrics.reporter.slf4j.factory.class: org.apache.flink.metrics.slf4j.Slf4jReporterFactory
+# kubernetes.operator.metrics.reporter.slf4j.interval: 5 MINUTE

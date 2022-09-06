@@ -1,0 +1,51 @@
+#==============================================================================
+# Copier Settings
+#==============================================================================
+_min_copier_version: "6.0.0"
+_subdirectory: flinktemplate
+_templates_suffix: .jinja # empty suffix will process all files
+_jinja_extensions:
+  - jinja2_time.TimeExtension
+  - cookiecutter.extensions.SlugifyExtension
+_exclude:
+  - "*.bar"
+# More at https://copier.readthedocs.io/en/stable/configuring/
+
+_tasks:
+  - git init
+  - git add .
+  # - pre-commit install --install-hooks
+
+flink_version:
+  type: str
+  default: 1.15.1
+  choices:
+    - 1.15.1
+    - 1.14.4
+    - 1.13.3
+    - 1.12.5
+    - 1.11.3
+  help: Apache Flink Version to be deployed?
+
+python_version:
+  type: str
+  default: 3.7.9
+  choices:
+    - 3.7.9
+    - 3.8.13
+  help: Python Version to used in project?
+
+enable_flink_sql:
+  type: bool
+  help: Enable Flink SQL Runner with docker image?
+  default: yes
+
+enable_flink_operator:
+  type: bool
+  help: Wheather to include flink helm operator to install K8s operator?
+  default: no
+
+flink_repo_name:
+  type: str
+  default: adhoc
+  help: Name of the Flink Cluster name or repo name

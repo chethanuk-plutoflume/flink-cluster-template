@@ -1,0 +1,23 @@
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkDeployment
+metadata:
+  name: flink-{{ flink_repo_name | default("adhoc") }}-cluster
+spec:
+  image: flink:1.15
+  flinkVersion: v1_15
+  flinkConfiguration:
+    taskmanager.numberOfTaskSlots: {{ flink_task_slots | default("2") }}
+  serviceAccount: {{ k8s_flink_sa | default("flink") }}
+  jobManager:
+    resource:
+      memory: {{ job_manager_memory | default("2048m") }}
+      cpu: {{ job_manager_cpu | default("2") }}
+  taskManager:
+    resource:
+      memory: {{ task_manager_memory | default("2048m") }}
+      cpu: {{ task_manager_cpu | default("2") }}
+  job:
+    # jarURI: local:///opt/flink/examples/streaming/StateMachineExample.jar
+    jarURI: {{ file_system_type | default("local://") }}/{{ flink_jar_loc | default("opt/flink/examples/streaming/") }}/{{ flink_jar_name | default("StateMachineExample.jar") }}
+    parallelism: {{ job_parallelism | default("2") }}
+    upgradeMode: stateless

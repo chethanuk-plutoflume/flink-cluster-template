@@ -1,0 +1,98 @@
+# TODO: Remove tests later on
+exclude: >
+  (?x)^(
+      .+/.venv/.+|
+      .+/dist/.+|
+      .+/.astro/.+|
+      .+/plugins/.+|
+      .+/.autovenv
+  )$
+fail_fast: true
+default_language_version:
+  python: python3
+default_stages:
+  - prepare-commit-msg
+  - commit
+  - push
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: check-case-conflict
+      - id: check-merge-conflict
+        stages:
+          - commit
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+        stages:
+          - commit
+      - id: detect-aws-credentials
+        args:
+          - --allow-missing-credentials
+      # - id: fix-encoding-pragma
+      - id: detect-private-key
+      - id: destroyed-symlinks
+      - id: check-ast
+      - id: name-tests-test
+        args: ["--django"]
+        exclude: tests/base_spark_test.py|tests/strategies.py|tests/log/strategies.py
+      - id: end-of-file-fixer
+        description: Ensures that a file is either empty, or ends with one newline.
+        exclude_types: [sql]
+        # types: [text]
+
+  - repo: https://github.com/psf/black
+    rev: 21.5b1
+    hooks:
+      - id: black
+        args: [--safe, --quiet]
+        files: \.pyi?$
+        exclude: scala|doc/
+        # override until resolved: https://github.com/psf/black/issues/402
+        types: []
+
+  - repo: https://github.com/myint/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        exclude: &fixtures tests/functional/|tests/input|plugins
+        args:
+          - --in-place
+          - --remove-all-unused-imports
+          - --expand-star-imports
+          - --remove-duplicate-keys
+          - --remove-unused-variables
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        args: [
+            "--filter-files", # skip files that are excluded in config file
+            "--profile=black",
+            "--skip=migrations",
+          ]
+        language_version: python3
+        files: \.py$
+        exclude: scala
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        args: ["--config=.flake8"]
+        exclude: *fixtures
+        additional_dependencies:
+          - flake8-bugbear
+          # - flake8-coding
+          - flake8-deprecated
+          - flake8-isort
+          - flake8-quotes
+          - flake8-string-format
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.1
+    hooks:
+      - id: pyupgrade
+        args:
+          - "--py37-plus"
